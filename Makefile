@@ -30,3 +30,15 @@ lint:
 push:
 	docker build -t ysku/k8s-monitor:latest .
 	docker push ysku/k8s-monitor
+
+.PHONY: apply
+apply:
+	@kubectl apply -f deploy/serviceaccount.yml
+	@kubectl apply -f deploy/clusterrolebinding.yml
+	@kubectl apply -f deploy/deployment.yml
+
+.PHONY: delete
+delete:
+	@kubectl delete -f deploy/serviceaccount.yml
+	@kubectl delete -f deploy/clusterrolebinding.yml
+	@kubectl delete -f deploy/deployment.yml
