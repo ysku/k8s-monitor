@@ -3,21 +3,69 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/util/runtime"
-
+	coreinformers "k8s.io/client-go/informers/core/v1"
+	"k8s.io/api/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 )
 
-const (
-	// K8S_LABEL_AWS_REGION is the key name to retrieve the region from a
-	// Node that runs on AWS.
-	K8S_LABEL_AWS_REGION = "failure-domain.beta.kubernetes.io/region"
-)
+type PodLoggingController struct {
+	informerFactory informers.SharedInformerFactory
+	podInformer     coreinformers.PodInformer
+}
+
+func NewPodLoggingController(informerFactory informers.SharedInformerFactory) *PodLoggingController {
+	podInformer := informerFactory.Core().V1().Pods()
+
+	c := &PodLoggingController{
+		informerFactory: informerFactory,
+		podInformer: podInformer,
+	}
+	podInformer.Informer().AddEventHandler(
+		// Your custom resource event handlers.
+		cache.ResourceEventHandlerFuncs{
+			// Called on creation
+			AddFunc: c.podAdd,
+			// Called on resource update and every resyncPeriod on existing resources.
+			UpdateFunc: c.podUpdate,
+			// Called on resource deletion.
+			DeleteFunc: c.podDelete,
+		},
+	)
+	return c
+}
+
+func (c *PodLoggingController) Run(stopCh chan struct{}) error {
+	// Starts all the shared informers that have been created by the factory so
+	// far.
+	c.informerFactory.Start(stopCh)
+	// wait for the initial synchronization of the local cache.
+	if !cache.WaitForCacheSync(stopCh, c.podInformer.Informer().HasSynced) {
+		return fmt.Errorf("Failed to sync")
+	}
+	return nil
+}
+
+func (c *PodLoggingController) podAdd(obj interface{}) {
+	pod := obj.(*v1.Pod)
+	fmt.Printf("[podAdd] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
+}
+
+func (c *PodLoggingController) podUpdate(old, new interface{}) {
+	oldPod := old.(*v1.Pod)
+	newPod := new.(*v1.Pod)
+	fmt.Printf("[podUpdate] old, namespace:%s, name:%s, labels:%v", oldPod.Namespace, oldPod.Name, oldPod.GetLabels())
+	fmt.Printf("[podUpdate] new, namespace:%s, name:%s, labels:%v", newPod.Namespace, newPod.Name, newPod.GetLabels())
+}
+
+func (c *PodLoggingController) podDelete(obj interface{}) {
+	pod := obj.(*v1.Pod)
+	fmt.Printf("[podDelete] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
+}
 
 func main() {
 	log.Print("Shared Informer app started")
@@ -31,29 +79,13 @@ func main() {
 		log.Panic(err.Error())
 	}
 
-	factory := informers.NewSharedInformerFactory(clientset, 0)
-	informer := factory.Core().V1().Pods().Informer()
-	stopper := make(chan struct{})
-	defer close(stopper)
-	defer runtime.HandleCrash()
-	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: onAdd,
-	})
-	go informer.Run(stopper)
-	if !cache.WaitForCacheSync(stopper, informer.HasSynced) {
-		runtime.HandleError(fmt.Errorf("Timed out waiting for caches to sync"))
-		return
+	factory := informers.NewSharedInformerFactory(clientset, 10 * time.Second)
+	controller := NewPodLoggingController(factory)
+	stop := make(chan struct{})
+	defer close(stop)
+	err = controller.Run(stop)
+	if err != nil {
+		log.Printf("error : %v", err)
 	}
-	<-stopper
-}
-
-// onAdd is the function executed when the kubernetes informer notified the
-// presence of a new kubernetes node in the cluster
-func onAdd(obj interface{}) {
-	// Cast the obj as node
-	pod := obj.(*corev1.Pod)
-	_, ok := pod.GetLabels()[K8S_LABEL_AWS_REGION]
-	if ok {
-		fmt.Printf("It has the label!")
-	}
+	select {}
 }

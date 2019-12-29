@@ -1,0 +1,69 @@
+defaults: &defaults
+  working_directory: ~/go/src/github.com/ysku/k8s-monitor
+  docker:
+    - image: golang:1.13.4
+
+version: 2
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Set pathes
+          command: |
+            echo 'export GOPATH=$HOME/go' >> $BASH_ENV
+            echo 'export PATH=$GOPATH/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+      - restore_cache: &restore_cache
+          name: Restore go modules cache
+          keys:
+            - mod-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "go.mod" }}
+      - run: &vendoring
+          name: Vendoring
+          command: make download
+      - save_cache: &save_cache
+          name: Save go modules cache
+          key: mod-{{ .Environment.COMMON_CACHE_KEY }}-{{ checksum "go.mod" }}
+          paths:
+            - /go/pkg/mod/cache
+      - run:
+          name: Install golangci-lint
+          command: curl -sfL "https://install.goreleaser.com/github.com/golangci/golangci-lint.sh" | sh -s -- -b $(go env GOPATH)/bin v1.18.0
+      - run:
+          name: Run linter
+          command: |
+            # make lint
+      - run:
+          name: Run tests
+          command: |
+            # make test
+  deploy:
+    working_directory: ~/k8s-monitor
+    docker:
+      - image: docker:19.03.5-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py-pip
+            apk --update add \
+              curl \
+              curl-dev \
+              bash \
+              findutils \
+              jq
+            pip install \
+              awscli==1.16.309
+      - run:
+          name: Run deploy script
+          command: make push
+
+workflows:
+  version: 2
+  test_deploy:
+    jobs:
+      - test
+      - deploy
