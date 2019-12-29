@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: ysku-monitor
+    environment: development
+    role: monitor
+  name: ysku-monitor
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ysku-monitor
+      environment: development
+      role: monitor
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ysku-monitor
+        environment: development
+        role: monitor
+    spec:
+      serviceAccount: default
+      serviceAccountName: default
+      containers:
+      - image: ysku/k8s-monitor:latest
+        imagePullPolicy: Always
+        name: ysku-monitor
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources: {}
