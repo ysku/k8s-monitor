@@ -28,8 +28,8 @@ lint:
 
 .PHONY: push
 push:
-	docker build -t ysku/k8s-monitor:latest .
-	docker push ysku/k8s-monitor
+	docker build -t ysku/my-k8s-custom-controller:latest .
+	docker push ysku/my-k8s-custom-controller
 
 .PHONY: apply
 apply:
@@ -45,5 +45,4 @@ delete:
 
 .PHONY: logs
 logs:
-	@kubectl get pod --selector=app=ysku-monitor --output=jsonpath={.items..metadata.name} | xargs kubectl logs -f
-
+	@kubectl get pod --selector=app=my-k8s-custom-controller --output=jsonpath={.items..metadata.name} | xargs kubectl logs -f

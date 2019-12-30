@@ -2,16 +2,16 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    app: ysku-monitor
+    app: my-k8s-custom-controller
     environment: development
     role: monitor
-  name: ysku-monitor
+  name: my-k8s-custom-controller
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ysku-monitor
+      app: my-k8s-custom-controller
       environment: development
       role: monitor
   strategy:
@@ -22,15 +22,15 @@ spec:
   template:
     metadata:
       labels:
-        app: ysku-monitor
+        app: my-k8s-custom-controller
         environment: development
         role: monitor
     spec:
-      serviceAccountName: ysku-monitor
+      serviceAccountName: my-k8s-custom-controller
       containers:
-      - image: ysku/k8s-monitor:latest
+      - image: ysku/my-k8s-custom-controller:latest
         imagePullPolicy: Always
-        name: ysku-monitor
+        name: my-k8s-custom-controller
         ports:
         - containerPort: 80
           protocol: TCP

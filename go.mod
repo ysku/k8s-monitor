@@ -1,4 +1,4 @@
-module github.com/ysku/k8s-monitor
+module github.com/ysku/my-k8s-custom-controller
 
 go 1.13
 

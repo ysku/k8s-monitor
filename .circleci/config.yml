@@ -1,5 +1,5 @@
 defaults: &defaults
-  working_directory: ~/go/src/github.com/ysku/k8s-monitor
+  working_directory: ~/go/src/github.com/ysku/my-k8s-custom-controller
   docker:
     - image: golang:1.13.4
 
@@ -39,7 +39,7 @@ jobs:
           command: |
             # make test
   deploy:
-    working_directory: ~/k8s-monitor
+    working_directory: ~/my-k8s-custom-controller
     docker:
       - image: docker:19.03.5-git
     steps:
