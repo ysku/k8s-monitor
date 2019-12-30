@@ -42,3 +42,8 @@ delete:
 	@kubectl delete -f deploy/serviceaccount.yml
 	@kubectl delete -f deploy/clusterrolebinding.yml
 	@kubectl delete -f deploy/deployment.yml
+
+.PHONY: logs
+logs:
+	@kubectl get pod --selector=app=ysku-monitor --output=jsonpath={.items..metadata.name} | xargs kubectl logs -f
+

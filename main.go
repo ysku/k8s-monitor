@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"log"
 	"time"
@@ -89,12 +88,11 @@ func (c *PodLoggingController) Run(threadiness int, stopCh chan struct{}) {
 	defer runtime.HandleCrash()
 	defer c.queue.ShutDown()
 
-	fmt.Print("[Run] start controller!!")
+	log.Print("[Run] start controller!!")
 
 	// Starts all the shared informers that have been created by the factory so far.
 	go c.informer.Run(stopCh)
 
-	fmt.Print("[Run] go c.informer.Run(stopCh)")
 	// wait for the initial synchronization of the local cache.
 	if !cache.WaitForCacheSync(stopCh, c.informer.HasSynced) {
 		log.Print("Failed to sync")
@@ -113,23 +111,20 @@ func (c *PodLoggingController) runWorker() {
 }
 
 func (c *PodLoggingController) podAdd(obj interface{}) {
-	fmt.Print("[podAdd] called!!")
 	pod := obj.(*v1.Pod)
-	fmt.Printf("[podAdd] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
+	log.Printf("[podAdd] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
 }
 
 func (c *PodLoggingController) podUpdate(old, new interface{}) {
-	fmt.Print("[podUpdate] called!!")
 	oldPod := old.(*v1.Pod)
 	newPod := new.(*v1.Pod)
-	fmt.Printf("[podUpdate] old, namespace:%s, name:%s, labels:%v", oldPod.Namespace, oldPod.Name, oldPod.GetLabels())
-	fmt.Printf("[podUpdate] new, namespace:%s, name:%s, labels:%v", newPod.Namespace, newPod.Name, newPod.GetLabels())
+	log.Printf("[podUpdate] old, namespace:%s, name:%s, labels:%v", oldPod.Namespace, oldPod.Name, oldPod.GetLabels())
+	log.Printf("[podUpdate] new, namespace:%s, name:%s, labels:%v", newPod.Namespace, newPod.Name, newPod.GetLabels())
 }
 
 func (c *PodLoggingController) podDelete(obj interface{}) {
-	fmt.Print("[podDelete] called!!")
 	pod := obj.(*v1.Pod)
-	fmt.Printf("[podDelete] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
+	log.Printf("[podDelete] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
 }
 
 func main() {
@@ -143,19 +138,15 @@ func main() {
 	if err != nil {
 		log.Panic(err.Error())
 	}
-	log.Print("[main] configured clientset")
 
 	factory := informers.NewSharedInformerFactory(clientset, 10*time.Second)
 	informer := factory.Core().V1().Pods().Informer()
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
-	log.Print("[main] configured factory")
 	controller := NewPodLoggingController(queue, informer)
-	log.Print("[main] configured controller")
 	stop := make(chan struct{})
 	defer close(stop)
 	go controller.Run(1, stop)
 	log.Print("[main] start running controller")
 	select {}
-	log.Print("[main] here should not be reached")
 }
