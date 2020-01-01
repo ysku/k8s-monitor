@@ -34,14 +34,16 @@ push:
 .PHONY: apply
 apply:
 	@kubectl apply -f deploy/serviceaccount.yml
+	@kubectl apply -f deploy/clusterrole.yml
 	@kubectl apply -f deploy/clusterrolebinding.yml
 	@kubectl apply -f deploy/deployment.yml
 
 .PHONY: delete
 delete:
-	@kubectl delete -f deploy/serviceaccount.yml
-	@kubectl delete -f deploy/clusterrolebinding.yml
-	@kubectl delete -f deploy/deployment.yml
+	-@kubectl delete -f deploy/serviceaccount.yml
+	-@kubectl delete -f deploy/clusterrole.yml
+	-@kubectl delete -f deploy/clusterrolebinding.yml
+	-@kubectl delete -f deploy/deployment.yml
 
 .PHONY: logs
 logs:

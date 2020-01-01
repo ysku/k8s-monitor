@@ -41,6 +41,14 @@ func run(cmd *cobra.Command, args []string) {
 		deploymentController := controller.NewDeploymentLoggingController(factory)
 		go deploymentController.Run(1, stop)
 	}
+	if conf.EnableJob {
+		jobController := controller.NewJobLoggingController(factory)
+		go jobController.Run(1, stop)
+	}
+	if conf.EnablePersistentVolume {
+		persistentVolumeController := controller.NewPersistentVolumeLoggingController(factory)
+		go persistentVolumeController.Run(1, stop)
+	}
 	if conf.EnablePod {
 		podController := controller.NewPodLoggingController(factory)
 		go podController.Run(1, stop)
@@ -64,8 +72,10 @@ func main() {
 		SilenceUsage: true,
 		Version:      version.Version,
 	}
-	conf := config.NewConfig()
+	conf = config.NewConfig()
 	cmd.Flags().BoolVar(&conf.EnableDeployment, "enable-deployment", true, "enable watching deployment")
+	cmd.Flags().BoolVar(&conf.EnableJob, "enable-job", true, "enable watching job")
+	cmd.Flags().BoolVar(&conf.EnablePersistentVolume, "enable-persistent-volume", true, "enable watching persistent volume")
 	cmd.Flags().BoolVar(&conf.EnablePod, "enable-pod", true, "enable watching pod")
 	cmd.Flags().BoolVar(&conf.EnableService, "enable-service", true, "enable watching service")
 	if err := cmd.Execute(); err != nil {

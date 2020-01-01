@@ -8,6 +8,6 @@ subjects:
   namespace: default
 roleRef:
   kind: ClusterRole
-  name: admin
+  name: my-k8s-custom-controller
   apiGroup: rbac.authorization.k8s.io
 
