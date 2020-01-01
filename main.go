@@ -37,6 +37,10 @@ func run(cmd *cobra.Command, args []string) {
 	stop := make(chan struct{})
 	defer close(stop)
 
+	if conf.EnableDeployment {
+		deploymentController := controller.NewDeploymentLoggingController(factory)
+		go deploymentController.Run(1, stop)
+	}
 	if conf.EnablePod {
 		podController := controller.NewPodLoggingController(factory)
 		go podController.Run(1, stop)
@@ -61,6 +65,7 @@ func main() {
 		Version:      version.Version,
 	}
 	conf := config.NewConfig()
+	cmd.Flags().BoolVar(&conf.EnableDeployment, "enable-deployment", true, "enable watching deployment")
 	cmd.Flags().BoolVar(&conf.EnablePod, "enable-pod", true, "enable watching pod")
 	cmd.Flags().BoolVar(&conf.EnableService, "enable-service", true, "enable watching service")
 	if err := cmd.Execute(); err != nil {

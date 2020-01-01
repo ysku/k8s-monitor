@@ -12,7 +12,7 @@ func NewServiceLoggingController(factory informers.SharedInformerFactory) *Loggi
 	informer := factory.Core().V1().Services().Informer()
 	informer.AddEventHandler(
 		cache.ResourceEventHandlerFuncs{
-			AddFunc: serviceAdd,
+			AddFunc:    serviceAdd,
 			UpdateFunc: serviceUpdate,
 			DeleteFunc: serviceDelete,
 		},
