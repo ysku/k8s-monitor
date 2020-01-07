@@ -1,13 +1,13 @@
 package controller
 
 import (
-	"log"
 	"time"
 
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
+	log "github.com/sirupsen/logrus"
 )
 
 type LoggingController struct {

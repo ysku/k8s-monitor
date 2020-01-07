@@ -29,4 +29,4 @@ build application, create and push docker image to registry.
 ```
 $ make push
 ```
-s
+

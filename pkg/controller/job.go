@@ -1,11 +1,11 @@
 package controller
 
 import (
+	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/batch/v1"
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
-	"log"
 )
 
 func NewJobLoggingController(factory informers.SharedInformerFactory) *LoggingController {
