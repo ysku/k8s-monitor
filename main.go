@@ -12,6 +12,7 @@ import (
 
 	"github.com/ysku/my-k8s-custom-controller/pkg/config"
 	"github.com/ysku/my-k8s-custom-controller/pkg/controller"
+	_ "github.com/ysku/my-k8s-custom-controller/pkg/logging"
 	"github.com/ysku/my-k8s-custom-controller/pkg/version"
 )
 
