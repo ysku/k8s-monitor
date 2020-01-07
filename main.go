@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -62,22 +63,28 @@ func run(cmd *cobra.Command, args []string) {
 	select {}
 }
 
-func main() {
-	log.Print("[main] Shared Informer app started")
+func validate(cmd *cobra.Command, args []string) {
+	if err := conf.Validate(); err != nil {
+		fmt.Fprintf(os.Stderr, "[main] error: %v", err)
+		os.Exit(1)
+	}
+}
 
+func main() {
 	cmd := &cobra.Command{
 		Use:          AppName,
 		Short:        "platform-agent version: " + version.Version,
+		PreRun:       validate,
 		Run:          run,
 		SilenceUsage: true,
 		Version:      version.Version,
 	}
 	conf = config.NewConfig()
-	cmd.Flags().BoolVar(&conf.EnableDeployment, "enable-deployment", true, "enable watching deployment")
-	cmd.Flags().BoolVar(&conf.EnableJob, "enable-job", true, "enable watching job")
-	cmd.Flags().BoolVar(&conf.EnablePersistentVolume, "enable-persistent-volume", true, "enable watching persistent volume")
-	cmd.Flags().BoolVar(&conf.EnablePod, "enable-pod", true, "enable watching pod")
-	cmd.Flags().BoolVar(&conf.EnableService, "enable-service", true, "enable watching service")
+	cmd.Flags().BoolVar(&conf.EnableDeployment, "enable-deployment", false, "enable watching deployment")
+	cmd.Flags().BoolVar(&conf.EnableJob, "enable-job", false, "enable watching job")
+	cmd.Flags().BoolVar(&conf.EnablePersistentVolume, "enable-persistent-volume", false, "enable watching persistent volume")
+	cmd.Flags().BoolVar(&conf.EnablePod, "enable-pod", false, "enable watching pod")
+	cmd.Flags().BoolVar(&conf.EnableService, "enable-service", false, "enable watching service")
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}

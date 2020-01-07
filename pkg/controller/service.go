@@ -23,17 +23,17 @@ func NewServiceLoggingController(factory informers.SharedInformerFactory) *Loggi
 
 func serviceAdd(obj interface{}) {
 	service := obj.(*v1.Service)
-	log.Printf("[serviceAdd] namespace:%s, name:%s, labels:%v", service.Namespace, service.Name, service.GetLabels())
+	log.Printf("[serviceAdd] namespace:%s, name:%s, labels:%v, annotations:%v", service.Namespace, service.Name, service.GetLabels(), service.GetAnnotations())
 }
 
 func serviceUpdate(old, new interface{}) {
 	oldService := old.(*v1.Service)
 	newService := new.(*v1.Service)
-	log.Printf("[serviceUpdate] old, namespace:%s, name:%s, labels:%v", oldService.Namespace, oldService.Name, oldService.GetLabels())
-	log.Printf("[serviceUpdate] new, namespace:%s, name:%s, labels:%v", newService.Namespace, newService.Name, newService.GetLabels())
+	log.Printf("[serviceUpdate] old, namespace:%s, name:%s, labels:%v, annotations:%v", oldService.Namespace, oldService.Name, oldService.GetLabels(), oldService.GetAnnotations())
+	log.Printf("[serviceUpdate] new, namespace:%s, name:%s, labels:%v, annotations:%v", newService.Namespace, newService.Name, newService.GetLabels(), newService.GetAnnotations())
 }
 
 func serviceDelete(obj interface{}) {
 	service := obj.(*v1.Service)
-	log.Printf("[serviceDelete] namespace:%s, name:%s, labels:%v", service.Namespace, service.Name, service.GetLabels())
+	log.Printf("[serviceDelete] namespace:%s, name:%s, labels:%v, annotations:%v", service.Namespace, service.Name, service.GetLabels(), service.GetAnnotations())
 }
