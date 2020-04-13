@@ -30,7 +30,6 @@ spec:
       containers:
       - image: ysku/my-k8s-custom-controller:latest
         imagePullPolicy: Always
-        args: ["--enable-service"]
         name: my-k8s-custom-controller
         ports:
         - containerPort: 80
