@@ -27,3 +27,11 @@ func init() {
 		log.SetLevel(log.InfoLevel)
 	}
 }
+
+func MapToFields(m map[string]string) log.Fields {
+	fields := log.Fields{}
+	for key, value := range m {
+		fields[key] = value
+	}
+	return fields
+}

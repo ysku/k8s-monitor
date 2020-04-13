@@ -6,6 +6,8 @@ import (
 	"k8s.io/client-go/informers"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
+
+	"github.com/ysku/my-k8s-custom-controller/pkg/logging"
 )
 
 func NewPodLoggingController(factory informers.SharedInformerFactory) *LoggingController {
@@ -23,17 +25,17 @@ func NewPodLoggingController(factory informers.SharedInformerFactory) *LoggingCo
 
 func podAdd(obj interface{}) {
 	pod := obj.(*v1.Pod)
-	log.Printf("[podAdd] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
+	log.WithFields(logging.MapToFields(pod.GetLabels())).Infof("[podAdd] namespace:%s, name:%s", pod.Namespace, pod.Name)
 }
 
 func podUpdate(old, new interface{}) {
 	oldPod := old.(*v1.Pod)
 	newPod := new.(*v1.Pod)
-	log.Printf("[podUpdate] old, namespace:%s, name:%s, labels:%v", oldPod.Namespace, oldPod.Name, oldPod.GetLabels())
-	log.Printf("[podUpdate] new, namespace:%s, name:%s, labels:%v", newPod.Namespace, newPod.Name, newPod.GetLabels())
+	log.WithFields(logging.MapToFields(oldPod.GetLabels())).Infof("[podUpdate] old, namespace:%s, name:%s", oldPod.Namespace, oldPod.Name)
+	log.WithFields(logging.MapToFields(newPod.GetLabels())).Infof("[podUpdate] new, namespace:%s, name:%s", newPod.Namespace, newPod.Name)
 }
 
 func podDelete(obj interface{}) {
 	pod := obj.(*v1.Pod)
-	log.Printf("[podDelete] namespace:%s, name:%s, labels:%v", pod.Namespace, pod.Name, pod.GetLabels())
+	log.WithFields(logging.MapToFields(pod.GetLabels())).Infof("[podDelete] namespace:%s, name:%s", pod.Namespace, pod.Name)
 }
