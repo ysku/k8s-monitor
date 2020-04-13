@@ -30,6 +30,9 @@ spec:
       containers:
       - image: ysku/my-k8s-custom-controller:latest
         imagePullPolicy: Always
+        args:
+          - --namespace
+          - default
         name: my-k8s-custom-controller
         ports:
         - containerPort: 80

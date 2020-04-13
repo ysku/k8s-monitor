@@ -3,6 +3,7 @@ package config
 import "golang.org/x/xerrors"
 
 type Config struct {
+	Namespace              string
 	EnableDeployment       bool
 	EnableJob              bool
 	EnablePersistentVolume bool

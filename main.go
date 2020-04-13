@@ -34,7 +34,12 @@ func NewClientSet() *kubernetes.Clientset {
 
 func run(cmd *cobra.Command, args []string) {
 	clientset := NewClientSet()
-	factory := informers.NewSharedInformerFactory(clientset, 0)
+	var factory informers.SharedInformerFactory
+	if conf.Namespace != "" {
+		factory = informers.NewSharedInformerFactoryWithOptions(clientset, 0, informers.WithNamespace(conf.Namespace))
+	} else {
+		factory = informers.NewSharedInformerFactory(clientset, 0)
+	}
 
 	stop := make(chan struct{})
 	defer close(stop)
@@ -77,6 +82,7 @@ func main() {
 		Version:      version.Version,
 	}
 	conf = config.NewConfig()
+	cmd.Flags().StringVar(&conf.Namespace, "namespace", "", "target namespace, all namespaces by default")
 	cmd.Flags().BoolVar(&conf.EnablePod, "enable-pod", true, "enable watching pod")
 	cmd.Flags().BoolVar(&conf.EnableDeployment, "enable-deployment", false, "enable watching deployment")
 	cmd.Flags().BoolVar(&conf.EnableJob, "enable-job", false, "enable watching job")
