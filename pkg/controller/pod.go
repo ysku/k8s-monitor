@@ -25,17 +25,17 @@ func NewPodLoggingController(factory informers.SharedInformerFactory) *LoggingCo
 
 func podAdd(obj interface{}) {
 	pod := obj.(*v1.Pod)
-	log.WithFields(logging.MapToFields(pod.GetLabels())).Infof("[podAdd] namespace:%s, name:%s", pod.Namespace, pod.Name)
+	log.WithFields(logging.MapToFields(pod.GetLabels())).Infof("[podAdd] namespace:%s, name:%s, status:%v", pod.Namespace, pod.Name, pod.Status)
 }
 
 func podUpdate(old, new interface{}) {
 	oldPod := old.(*v1.Pod)
 	newPod := new.(*v1.Pod)
-	log.WithFields(logging.MapToFields(oldPod.GetLabels())).Infof("[podUpdate] old, namespace:%s, name:%s", oldPod.Namespace, oldPod.Name)
-	log.WithFields(logging.MapToFields(newPod.GetLabels())).Infof("[podUpdate] new, namespace:%s, name:%s", newPod.Namespace, newPod.Name)
+	log.WithFields(logging.MapToFields(oldPod.GetLabels())).Infof("[podUpdate] old, namespace:%s, name:%s, status:%v", oldPod.Namespace, oldPod.Name, oldPod.Status)
+	log.WithFields(logging.MapToFields(newPod.GetLabels())).Infof("[podUpdate] new, namespace:%s, name:%s, status:%v", newPod.Namespace, newPod.Name, newPod.Status)
 }
 
 func podDelete(obj interface{}) {
 	pod := obj.(*v1.Pod)
-	log.WithFields(logging.MapToFields(pod.GetLabels())).Infof("[podDelete] namespace:%s, name:%s", pod.Namespace, pod.Name)
+	log.WithFields(logging.MapToFields(pod.GetLabels())).Infof("[podDelete] namespace:%s, name:%s, status:%v", pod.Namespace, pod.Name, pod.Status)
 }
