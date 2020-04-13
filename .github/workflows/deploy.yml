@@ -25,5 +25,9 @@ jobs:
         run: echo ${DOCKERHUB_PASSWORD} | docker login --username ${DOCKERHUB_USER} --password-stdin
       - name: Build and push docker image
         run: |
-          docker build -t ysku/my-k8s-custom-controller:${{ github.sha }} .
+          docker build -t ysku/my-k8s-custom-controller .
+          docker tag ysku/my-k8s-custom-controller ysku/my-k8s-custom-controller:${{ github.sha }}
+          # create new image with tag
           docker push ysku/my-k8s-custom-controller:${{ github.sha }}
+          # update latest
+          docker push ysku/my-k8s-custom-controller
