@@ -3,22 +3,25 @@ package controller
 import (
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
-	log "github.com/sirupsen/logrus"
 )
 
 type LoggingController struct {
+	Name     string
 	informer cache.SharedInformer
 	queue    workqueue.RateLimitingInterface
 }
 
 func NewLoggingController(
+	name string,
 	queue workqueue.RateLimitingInterface,
 	informer cache.SharedInformer) *LoggingController {
 	return &LoggingController{
+		Name: name,
 		informer: informer,
 		queue:    queue,
 	}

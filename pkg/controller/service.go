@@ -18,7 +18,7 @@ func NewServiceLoggingController(factory informers.SharedInformerFactory) *Loggi
 		},
 	)
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
-	return NewLoggingController(queue, informer)
+	return NewLoggingController("service", queue, informer)
 }
 
 func logService(action string, service *v1.Service) {

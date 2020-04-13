@@ -18,7 +18,7 @@ func NewDeploymentLoggingController(factory informers.SharedInformerFactory) *Lo
 		},
 	)
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
-	return NewLoggingController(queue, informer)
+	return NewLoggingController("deployment", queue, informer)
 }
 
 func deploymentAdd(obj interface{}) {
