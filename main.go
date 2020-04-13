@@ -12,6 +12,7 @@ import (
 
 	"github.com/ysku/my-k8s-custom-controller/pkg/config"
 	"github.com/ysku/my-k8s-custom-controller/pkg/controller"
+	_ "github.com/ysku/my-k8s-custom-controller/pkg/logging"
 	"github.com/ysku/my-k8s-custom-controller/pkg/version"
 )
 
@@ -38,25 +39,21 @@ func run(cmd *cobra.Command, args []string) {
 	stop := make(chan struct{})
 	defer close(stop)
 
-	if conf.EnableDeployment {
-		deploymentController := controller.NewDeploymentLoggingController(factory)
-		go deploymentController.Run(1, stop)
+	controllers := map[bool]*controller.LoggingController{
+		conf.EnablePod: controller.NewPodLoggingController(factory),
+		conf.EnableDeployment: controller.NewDeploymentLoggingController(factory),
+		conf.EnableJob: controller.NewJobLoggingController(factory),
+		conf.EnablePersistentVolume: controller.NewPersistentVolumeLoggingController(factory),
+		conf.EnableService: controller.NewServiceLoggingController(factory),
+		conf.EnableHpa: controller.NewHPALoggingController(factory),
+		conf.EnablePdb: controller.NewPDBLoggingController(factory),
 	}
-	if conf.EnableJob {
-		jobController := controller.NewJobLoggingController(factory)
-		go jobController.Run(1, stop)
-	}
-	if conf.EnablePersistentVolume {
-		persistentVolumeController := controller.NewPersistentVolumeLoggingController(factory)
-		go persistentVolumeController.Run(1, stop)
-	}
-	if conf.EnablePod {
-		podController := controller.NewPodLoggingController(factory)
-		go podController.Run(1, stop)
-	}
-	if conf.EnableService {
-		serviceController := controller.NewServiceLoggingController(factory)
-		go serviceController.Run(1, stop)
+
+	for enable, c := range controllers {
+		if enable {
+			log.Printf("[main] starting controller %s\n", c.Name)
+			go c.Run(1, stop)
+		}
 	}
 
 	log.Print("[main] start running logging")
@@ -80,11 +77,13 @@ func main() {
 		Version:      version.Version,
 	}
 	conf = config.NewConfig()
+	cmd.Flags().BoolVar(&conf.EnablePod, "enable-pod", true, "enable watching pod")
 	cmd.Flags().BoolVar(&conf.EnableDeployment, "enable-deployment", false, "enable watching deployment")
 	cmd.Flags().BoolVar(&conf.EnableJob, "enable-job", false, "enable watching job")
 	cmd.Flags().BoolVar(&conf.EnablePersistentVolume, "enable-persistent-volume", false, "enable watching persistent volume")
-	cmd.Flags().BoolVar(&conf.EnablePod, "enable-pod", false, "enable watching pod")
 	cmd.Flags().BoolVar(&conf.EnableService, "enable-service", false, "enable watching service")
+	cmd.Flags().BoolVar(&conf.EnableHpa, "enable-hpa", false, "enable watching horizontal pod autoscaler")
+	cmd.Flags().BoolVar(&conf.EnablePdb, "enable-pdb", false, "enable watching pod disruption budget")
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}

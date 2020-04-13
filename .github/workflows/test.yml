@@ -1,0 +1,32 @@
+name: Lint & Test
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: cache
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    - name: Install golangci-lint
+      run: |
+        curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.18.0
+        # https://github.com/golangci/golangci-lint/issues/250
+        sudo mv ./bin/golangci-lint $GOPATH/bin/
+    - name: Run linter
+      run: make lint
+    - name: Run Build
+      run: make build
+    - name: Run Test
+      run: make test

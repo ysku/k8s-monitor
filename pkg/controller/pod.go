@@ -18,7 +18,7 @@ func NewPodLoggingController(factory informers.SharedInformerFactory) *LoggingCo
 		},
 	)
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
-	return NewLoggingController(queue, informer)
+	return NewLoggingController("pod", queue, informer)
 }
 
 func podAdd(obj interface{}) {

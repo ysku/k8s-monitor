@@ -8,6 +8,8 @@ type Config struct {
 	EnablePersistentVolume bool
 	EnablePod              bool
 	EnableService          bool
+	EnableHpa              bool
+	EnablePdb              bool
 }
 
 func NewConfig() *Config {

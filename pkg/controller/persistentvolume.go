@@ -18,7 +18,7 @@ func NewPersistentVolumeLoggingController(factory informers.SharedInformerFactor
 		},
 	)
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
-	return NewLoggingController(queue, informer)
+	return NewLoggingController("pv", queue, informer)
 }
 
 func persistentPersistentVolumeAdd(obj interface{}) {
